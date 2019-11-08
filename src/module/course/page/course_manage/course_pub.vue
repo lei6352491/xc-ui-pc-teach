@@ -17,6 +17,7 @@
             <span>课程发布</span>
           </div>
           <div class="text item">
+            <br/>
             <div v-if="course.status == '202001'">
               状态：制作中<br/>
               <el-button type="primary"  @click.native="publish" >新课程发布</el-button>
@@ -24,13 +25,13 @@
             <div v-else-if="course.status == '202003'">
               状态：已下线
               <br/><br/>
-              <span><a :href="'http://www.xuecheng.com/course/detail/'+this.courseid+'.html'" target="_blank">点我查看课程详情页面 </a> </span>
+              <span><a :href="path" target="_blank">点我查看课程详情页面 </a> </span>
             </div>
             <div v-else-if="course.status == '202002'">
               状态：已发布<br/>
               <el-button type="primary"  @click.native="publish" >修改发布</el-button>
               <br/><br/>
-              <span><a :href="'http://www.xuecheng.com/course/detail/'+this.courseid+'.html'" target="_blank">点我查看课程详情页面 </a> </span>
+              <span><a :href="path" target="_blank">点我查看课程详情页面 </a> </span>
             </div>
           </div>
         </el-card>
@@ -50,7 +51,8 @@ export default{
       dotype: '',
       courseid: '',
       course: {"id": "", "name": "", "status": ""},
-      previewurl: ''
+      previewurl: '',
+      path:''
     }
   },
   methods:{
@@ -74,7 +76,8 @@ export default{
       courseApi.publish(this.courseid).then(res=>{
           if(res.success){
               this.$message.success("发布成功，请点击下边的链接查询课程详情页面")
-
+              this.path = res.previewUrl;
+              this.getCourseView();
           }else{
             this.$message.error(res.message)
           }
@@ -82,10 +85,10 @@ export default{
       })
     },
     getCourseView(){
-      courseApi.findCourseView(this.courseid).then(res=>{
-        if(res && res.courseBase){
+      courseApi.getCoursebaseById(this.courseid).then(res=>{
+        if(res.success){
             //获取课程状态
-            this.course.status = res.courseBase.status;
+            this.course.status = res.queryOneResult.data.status;
         }
 
       })
@@ -98,8 +101,7 @@ export default{
     //查询课程信息
     this.getCourseView();
   }
-
-  }
+}
 </script>
 <style>
 
